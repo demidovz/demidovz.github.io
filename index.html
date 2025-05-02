@@ -246,32 +246,26 @@
 
       // Если новая фигура сразу сталкивается - игра окончена
       if (collide(arena, player)) {
-        // Отправляем счет и закрываем игру
         if (player.score > 0) {
           // Показываем сообщение о проигрыше
           showGameOver(player.score);
           
-          // Отправляем счет через callback query
-          if (window.Telegram?.WebApp) {
-            try {
-              const gameData = {
-                score: player.score
-              };
-              window.Telegram.WebApp.sendData(JSON.stringify(gameData));
-              
-              // Даем немного времени чтобы игрок увидел Game Over
-              setTimeout(() => {
-                window.Telegram.WebApp.close();
-              }, 2000);
-            } catch (e) {
-              console.error('Ошибка отправки счета:', e);
-            }
-          }
+          // В Game API мы должны отправить счет через URL
+          const gameScore = player.score;
+          window.location.href = `https://t.me/tetris_bot?game_score=${gameScore}`;
+          
+          // Очищаем арену через небольшую задержку
+          setTimeout(() => {
+            arena.forEach(row => row.fill(0));
+            player.score = 0;
+            updateScore();
+          }, 2000);
+          
+          return;
         }
         
-        // Очищаем арену
+        // Если счет 0, просто очищаем арену
         arena.forEach(row => row.fill(0));
-        // Сбрасываем счет
         player.score = 0;
         updateScore();
       }
