@@ -246,18 +246,27 @@
 
       // Если новая фигура сразу сталкивается - игра окончена
       if (collide(arena, player)) {
-        // Отправляем результат в бот перед сбросом
+        // Отправляем счет и закрываем игру
         if (player.score > 0) {
           // Показываем сообщение о проигрыше
           showGameOver(player.score);
           
-          // Отправляем результат в бот
-          const gameData = {
-            type: 'game_over',
-            score: player.score
-          };
-          console.log('Отправка результата:', gameData);
-          window.Telegram.WebApp.sendData(JSON.stringify(gameData));
+          // Отправляем счет через callback query
+          if (window.Telegram?.WebApp) {
+            try {
+              const gameData = {
+                score: player.score
+              };
+              window.Telegram.WebApp.sendData(JSON.stringify(gameData));
+              
+              // Даем немного времени чтобы игрок увидел Game Over
+              setTimeout(() => {
+                window.Telegram.WebApp.close();
+              }, 2000);
+            } catch (e) {
+              console.error('Ошибка отправки счета:', e);
+            }
+          }
         }
         
         // Очищаем арену
