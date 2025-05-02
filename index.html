@@ -90,7 +90,14 @@
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
     const scoreEl = document.getElementById('score');
-    const scale = 16; // 10x20 field, 16px per block
+    // Настройки поля
+    const COLS = 10;
+    const ROWS = 20;
+    const BLOCK_SIZE = 24; // Крупнее блоки
+    canvas.width = COLS * BLOCK_SIZE;
+    canvas.height = ROWS * BLOCK_SIZE;
+    // Масштабируем context, чтобы 1 логический блок = BLOCK_SIZE px
+    context.setTransform(BLOCK_SIZE, 0, 0, BLOCK_SIZE, 0, 0);
     context.imageSmoothingEnabled = false;
 
     // 8-bit palette
@@ -125,7 +132,7 @@
     function draw() {
       // BG
       context.fillStyle = '#111';
-      context.fillRect(0, 0, canvas.width / scale, canvas.height / scale);
+      context.fillRect(0, 0, canvas.width / BLOCK_SIZE, canvas.height / BLOCK_SIZE);
       drawMatrix(arena, {x:0, y:0});
       drawMatrix(player.matrix, player.pos);
     }
@@ -242,7 +249,7 @@
     let dropCounter = 0;
     let dropInterval = 700;
     let lastTime = 0;
-    const arena = createMatrix(10, 20);
+    const arena = createMatrix(COLS, ROWS);
     const player = { pos: {x:0, y:0}, matrix: null, score: 0 };
 
     function update(time = 0) {
@@ -253,6 +260,19 @@
       draw();
       requestAnimationFrame(update);
     }
+
+    // Мобильная адаптация canvas
+    function resizeCanvas() {
+      const maxW = Math.min(window.innerWidth * 0.96, 320);
+      const maxH = Math.min(window.innerHeight * 0.7, 540);
+      const scaleW = Math.floor(maxW / COLS);
+      const scaleH = Math.floor(maxH / ROWS);
+      const size = Math.max(16, Math.min(scaleW, scaleH));
+      canvas.style.width = (COLS * size) + 'px';
+      canvas.style.height = (ROWS * size) + 'px';
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
     // Touch & button controls
     document.getElementById('left').addEventListener('touchstart', e => { e.preventDefault(); playerMove(-1); });
