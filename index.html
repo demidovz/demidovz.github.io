@@ -273,14 +273,22 @@
     resizeCanvas();
 
     // Touch & button controls
-    document.getElementById('left').addEventListener('touchstart', e => { e.preventDefault(); playerMove(-1); });
+    let leftTouch = false;
+    document.getElementById('left').addEventListener('touchstart', e => {
+      e.preventDefault();
+      leftTouch = true;
+      playerMove(-1);
+      setTimeout(() => { leftTouch = false; }, 150);
+    });
+    document.getElementById('left').addEventListener('mousedown', e => {
+      if (leftTouch) return;
+      playerMove(-1);
+    });
     document.getElementById('right').addEventListener('touchstart', e => { e.preventDefault(); playerMove(1); });
-    document.getElementById('down').addEventListener('touchstart', e => { e.preventDefault(); playerDrop(); });
-    document.getElementById('rotate').addEventListener('touchstart', e => { e.preventDefault(); playerRotate(1); });
-    // Mouse fallback
-    document.getElementById('left').addEventListener('mousedown', () => playerMove(-1));
     document.getElementById('right').addEventListener('mousedown', () => playerMove(1));
+    document.getElementById('down').addEventListener('touchstart', e => { e.preventDefault(); playerDrop(); });
     document.getElementById('down').addEventListener('mousedown', () => playerDrop());
+    document.getElementById('rotate').addEventListener('touchstart', e => { e.preventDefault(); playerRotate(1); });
     document.getElementById('rotate').addEventListener('mousedown', () => playerRotate(1));
     // Keyboard
     document.addEventListener('keydown', event => {
