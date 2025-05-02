@@ -93,11 +93,9 @@
     // Настройки поля
     const COLS = 10;
     const ROWS = 20;
-    const BLOCK_SIZE = 24; // Крупнее блоки
+    const BLOCK_SIZE = 32; // Ещё крупнее блоки
     canvas.width = COLS * BLOCK_SIZE;
     canvas.height = ROWS * BLOCK_SIZE;
-    // Масштабируем context, чтобы 1 логический блок = BLOCK_SIZE px
-    context.setTransform(BLOCK_SIZE, 0, 0, BLOCK_SIZE, 0, 0);
     context.imageSmoothingEnabled = false;
 
     // 8-bit palette
@@ -115,10 +113,10 @@
     // Draw 8-bit block
     function drawBlock(x, y, color) {
       context.fillStyle = color;
-      context.fillRect(x, y, 1, 1);
+      context.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
       context.strokeStyle = '#222';
-      context.lineWidth = 0.08;
-      context.strokeRect(x + 0.04, y + 0.04, 0.92, 0.92);
+      context.lineWidth = 2;
+      context.strokeRect(x * BLOCK_SIZE + 2, y * BLOCK_SIZE + 2, BLOCK_SIZE - 4, BLOCK_SIZE - 4);
     }
 
     function drawMatrix(matrix, offset) {
@@ -132,7 +130,7 @@
     function draw() {
       // BG
       context.fillStyle = '#111';
-      context.fillRect(0, 0, canvas.width / BLOCK_SIZE, canvas.height / BLOCK_SIZE);
+      context.fillRect(0, 0, canvas.width, canvas.height);
       drawMatrix(arena, {x:0, y:0});
       drawMatrix(player.matrix, player.pos);
     }
@@ -263,11 +261,11 @@
 
     // Мобильная адаптация canvas
     function resizeCanvas() {
-      const maxW = Math.min(window.innerWidth * 0.96, 320);
-      const maxH = Math.min(window.innerHeight * 0.7, 540);
+      const maxW = Math.min(window.innerWidth * 0.96, 400);
+      const maxH = Math.min(window.innerHeight * 0.7, 700);
       const scaleW = Math.floor(maxW / COLS);
       const scaleH = Math.floor(maxH / ROWS);
-      const size = Math.max(16, Math.min(scaleW, scaleH));
+      const size = Math.max(24, Math.min(scaleW, scaleH));
       canvas.style.width = (COLS * size) + 'px';
       canvas.style.height = (ROWS * size) + 'px';
     }
