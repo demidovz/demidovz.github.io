@@ -2,7 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="format-detection" content="telephone=no">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="MobileOptimized" content="176">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="robots" content="noindex,nofollow">
   <title>8-bit Tetris</title>
   <style>
     body {
@@ -91,9 +96,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
-    // Telegram Web App готов к работе
+    // Инициализация Telegram WebApp
     Telegram.WebApp.ready();
     Telegram.WebApp.expand();
+    
+    // Настраиваем цвета в соответствии с темой Telegram
+    if (Telegram.WebApp.colorScheme === 'dark') {
+      document.body.style.background = '#1f1f1f';
+    }
+    
+    // Добавляем кнопку закрытия в верхнем меню
+    Telegram.WebApp.MainButton.setText('Закрыть игру').show().onClick(() => {
+      Telegram.WebApp.close();
+    });
   </script>
 </head>
 <body>
