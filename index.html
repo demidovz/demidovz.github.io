@@ -229,30 +229,29 @@
     }
 
     function playerReset() {
+      // Сначала проверяем текущий счет
+      if (player.score > 0) {
+        // Показываем сообщение о проигрыше
+        showGameOver(player.score);
+        
+        // Отправляем результат в бот
+        const gameData = {
+          type: 'game_over',
+          score: player.score
+        };
+        window.Telegram.WebApp.sendData(JSON.stringify(gameData));
+      }
+
       const pieces = 'TJLOSZI';
-      player.matrix = createPiece(pieces[Math.random() * pieces.length | 0]);
+      player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
       player.pos.y = 0;
       player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
+
+      // Если новая фигура сразу сталкивается - игра окончена
       if (collide(arena, player)) {
-        // Send score to Telegram before resetting
-        if (player.score > 0) {
-          // Создаем элемент с сообщением о конце игры
-          const gameOver = document.createElement('div');
-          gameOver.className = 'game-over';
-          gameOver.textContent = `GAME OVER: ${player.score}`;
-          document.querySelector('.score-container').insertBefore(gameOver, scoreEl);
-          
-          // Удаляем сообщение через 3 секунды
-          setTimeout(() => gameOver.remove(), 3000);
-          
-          // Отправляем данные в Telegram
-          Telegram.WebApp.sendData(JSON.stringify({
-            type: 'game_over',
-            score: player.score,
-            best_score: bestScore
-          }));
-        }
+        // Очищаем арену
         arena.forEach(row => row.fill(0));
+        // Сбрасываем счет
         player.score = 0;
         updateScore();
       }
@@ -289,6 +288,16 @@
         bestScore = player.score;
         bestScoreEl.textContent = `BEST: ${bestScore}`;
       }
+    }
+
+    function showGameOver(score) {
+      const gameOver = document.createElement('div');
+      gameOver.className = 'game-over';
+      gameOver.textContent = `GAME OVER: ${score}`;
+      document.querySelector('.score-container').insertBefore(gameOver, scoreEl);
+      
+      // Удаляем сообщение через 3 секунды
+      setTimeout(() => gameOver.remove(), 3000);
     }
 
     // Game loop
