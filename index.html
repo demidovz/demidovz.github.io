@@ -208,6 +208,13 @@
       player.pos.y = 0;
       player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
       if (collide(arena, player)) {
+        // Send score to Telegram before resetting
+        if (player.score > 0) {
+          Telegram.WebApp.sendData(JSON.stringify({
+            type: 'game_over',
+            score: player.score
+          }));
+        }
         arena.forEach(row => row.fill(0));
         player.score = 0;
         updateScore();
