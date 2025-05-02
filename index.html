@@ -54,12 +54,34 @@
     .btn:active {
       background: #555;
     }
+    .score-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
     .score {
-      color: #1982C4; /* Синий цвет для наглядности */
+      color: #1982C4;
       font-size: 1.2rem;
-      margin-bottom: 4px;
       letter-spacing: 2px;
       text-shadow: 2px 2px 0 #000a;
+    }
+    .best-score {
+      color: #8AC926;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      text-shadow: 2px 2px 0 #000a;
+    }
+    .game-over {
+      color: #FF595E;
+      font-size: 1.4rem;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 0 #000a;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      50% { opacity: 0.5; }
     }
     @media (max-width: 600px) {
       canvas { width: 96vw !important; height: 160vw !important; max-width: 320px; max-height: 540px; }
@@ -76,7 +98,10 @@
 </head>
 <body>
   <div class="tetris-container">
-    <div class="score" id="score">SCORE: 0</div>
+    <div class="score-container">
+      <div class="score" id="score">SCORE: 0</div>
+      <div class="best-score" id="best-score">BEST: 0</div>
+    </div>
     <canvas id="tetris"></canvas>
     <div class="controls">
       <button class="btn" id="left" aria-label="Left">◀️</button>
@@ -90,6 +115,7 @@
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
     const scoreEl = document.getElementById('score');
+    const bestScoreEl = document.getElementById('best-score');
     // Настройки поля
     const COLS = 10;
     const ROWS = 20;
@@ -210,9 +236,20 @@
       if (collide(arena, player)) {
         // Send score to Telegram before resetting
         if (player.score > 0) {
+          // Создаем элемент с сообщением о конце игры
+          const gameOver = document.createElement('div');
+          gameOver.className = 'game-over';
+          gameOver.textContent = `GAME OVER: ${player.score}`;
+          document.querySelector('.score-container').insertBefore(gameOver, scoreEl);
+          
+          // Удаляем сообщение через 3 секунды
+          setTimeout(() => gameOver.remove(), 3000);
+          
+          // Отправляем данные в Telegram
           Telegram.WebApp.sendData(JSON.stringify({
             type: 'game_over',
-            score: player.score
+            score: player.score,
+            best_score: bestScore
           }));
         }
         arena.forEach(row => row.fill(0));
@@ -247,7 +284,11 @@
     }
 
     function updateScore() {
-      scoreEl.textContent = 'SCORE: ' + player.score;
+      scoreEl.textContent = `SCORE: ${player.score}`;
+      if (player.score > bestScore) {
+        bestScore = player.score;
+        bestScoreEl.textContent = `BEST: ${bestScore}`;
+      }
     }
 
     // Game loop
@@ -256,6 +297,7 @@
     let lastTime = 0;
     const arena = createMatrix(COLS, ROWS);
     const player = { pos: {x:0, y:0}, matrix: null, score: 0 };
+    let bestScore = 0;
 
     function update(time = 0) {
       const deltaTime = time - lastTime;
