@@ -8,6 +8,13 @@
     body { background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
     canvas { border: 2px solid #fff; }
   </style>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+  // Telegram Web App готов к работе
+  Telegram.WebApp.ready();
+  // по желанию расширяем окно игры на весь экран
+  Telegram.WebApp.expand();
+</script>
 </head>
 <body>
   <canvas id="tetris" width="240" height="400"></canvas>
