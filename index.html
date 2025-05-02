@@ -250,18 +250,21 @@
         // Показываем сообщение о проигрыше
         showGameOver(player.score);
         
-        // Отправляем счет в Telegram через метод game
-        const score = player.score;
-        TelegramGameProxy.shareScore(score);
+        // Отправляем счет через Game API
+        if (window.TelegramGameProxy) {
+          TelegramGameProxy.postEvent('shareScore', player.score);
+        }
         
-        // Очищаем арену и завершаем игру
+        // Очищаем арену
         arena.forEach(row => row.fill(0));
         player.score = 0;
         updateScore();
         
-        // Перезагружаем страницу через 2 секунды, чтобы вернуться в Telegram
+        // Закрываем игру через 2 секунды
         setTimeout(() => {
-          window.close();
+          if (window.TelegramGameProxy) {
+            TelegramGameProxy.postEvent('gameOver');
+          }
         }, 2000);
         
         return;
