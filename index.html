@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="format-detection" content="telephone=no">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="MobileOptimized" content="176">
@@ -94,9 +94,10 @@
     }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <script src="https://telegram.org/js/games.js"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
-    // Инициализация Telegram WebApp
+    // Инициализация Telegram WebApp и Game
     Telegram.WebApp.ready();
     Telegram.WebApp.expand();
     
@@ -246,28 +247,24 @@
 
       // Если новая фигура сразу сталкивается - игра окончена
       if (collide(arena, player)) {
-        if (player.score > 0) {
-          // Показываем сообщение о проигрыше
-          showGameOver(player.score);
-          
-          // В Game API мы должны отправить счет через URL
-          const gameScore = player.score;
-          window.location.href = `https://t.me/tetris_bot?game_score=${gameScore}`;
-          
-          // Очищаем арену через небольшую задержку
-          setTimeout(() => {
-            arena.forEach(row => row.fill(0));
-            player.score = 0;
-            updateScore();
-          }, 2000);
-          
-          return;
-        }
+        // Показываем сообщение о проигрыше
+        showGameOver(player.score);
         
-        // Если счет 0, просто очищаем арену
+        // Отправляем счет в Telegram через метод game
+        const score = player.score;
+        TelegramGameProxy.shareScore(score);
+        
+        // Очищаем арену и завершаем игру
         arena.forEach(row => row.fill(0));
         player.score = 0;
         updateScore();
+        
+        // Перезагружаем страницу через 2 секунды, чтобы вернуться в Telegram
+        setTimeout(() => {
+          window.close();
+        }, 2000);
+        
+        return;
       }
     }
 
