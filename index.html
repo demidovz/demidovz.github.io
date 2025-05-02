@@ -97,13 +97,18 @@
   <script src="https://telegram.org/js/games.js"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
-    // Инициализация Telegram WebApp и Game
-    Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
+    // Initialize Telegram Game
+    const tg = window.Telegram && window.Telegram.WebApp;
     
-    // Настраиваем цвета в соответствии с темой Telegram
-    if (Telegram.WebApp.colorScheme === 'dark') {
-      document.body.style.background = '#1f1f1f';
+    // Handling game initialization
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      
+      // Set dark theme if needed
+      if (tg.colorScheme === 'dark') {
+        document.body.style.background = '#1f1f1f';
+      }
     }
   </script>
 </head>
@@ -245,28 +250,27 @@
       player.pos.y = 0;
       player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
 
-      // Если новая фигура сразу сталкивается - игра окончена
+      // Если новая фигура сталкивается - игра окончена
       if (collide(arena, player)) {
         // Показываем сообщение о проигрыше
         showGameOver(player.score);
         
-        // Отправляем счет через Game API
-        if (window.TelegramGameProxy) {
-          TelegramGameProxy.postEvent('shareScore', player.score);
+        try {
+          // Отправляем счет через TelegramGameProxy с параметром
+          TelegramGameProxy.shareScore(player.score);
+          
+          // Закрываем игру через 2 секунды
+          setTimeout(() => {
+            window.close();
+          }, 2000);
+        } catch (e) {
+          console.error('Error handling game over:', e);
         }
         
         // Очищаем арену
         arena.forEach(row => row.fill(0));
         player.score = 0;
         updateScore();
-        
-        // Закрываем игру через 2 секунды
-        setTimeout(() => {
-          if (window.TelegramGameProxy) {
-            TelegramGameProxy.postEvent('gameOver');
-          }
-        }, 2000);
-        
         return;
       }
     }
