@@ -229,19 +229,6 @@
     }
 
     function playerReset() {
-      // Сначала проверяем текущий счет
-      if (player.score > 0) {
-        // Показываем сообщение о проигрыше
-        showGameOver(player.score);
-        
-        // Отправляем результат в бот
-        const gameData = {
-          type: 'game_over',
-          score: player.score
-        };
-        window.Telegram.WebApp.sendData(JSON.stringify(gameData));
-      }
-
       const pieces = 'TJLOSZI';
       player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
       player.pos.y = 0;
@@ -249,6 +236,20 @@
 
       // Если новая фигура сразу сталкивается - игра окончена
       if (collide(arena, player)) {
+        // Отправляем результат в бот перед сбросом
+        if (player.score > 0) {
+          // Показываем сообщение о проигрыше
+          showGameOver(player.score);
+          
+          // Отправляем результат в бот
+          const gameData = {
+            type: 'game_over',
+            score: player.score
+          };
+          console.log('Отправка результата:', gameData);
+          window.Telegram.WebApp.sendData(JSON.stringify(gameData));
+        }
+        
         // Очищаем арену
         arena.forEach(row => row.fill(0));
         // Сбрасываем счет
